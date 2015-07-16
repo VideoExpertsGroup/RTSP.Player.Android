@@ -1,7 +1,8 @@
-# RTSP Player is a very simple IP camera veiwer for Android. 
-Fast application to playback network stream from IP cameras, video servers and surveillance systems. 
+# RTSP Player for Android
+  RTSP Player is a very simple IP camera veiwer . 
+  Fast application to playback network stream from IP cameras, video servers and surveillance systems. 
 
-Key features: 
+  Key features: 
 *  Supported types of streaming: RTSP, RTP, UDP (Multicast stream support),HTTP-HLS, RTMP, MMS
 * Recording from live camera
 *  Digital zoom and picture shifting 
