@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/status_disconnected"
+    android:scaleGravity="center"
+    android:scaleHeight="110%"
+    android:scaleWidth="110%" 
+/>

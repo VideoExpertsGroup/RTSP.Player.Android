@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:application="http://schemas.android.com/apk/res/org.rtspplayer.sample"
+    android:inputType="number" >
+	<PreferenceCategory
+   		android:title="Files"
+		android:summary="" >
+   		<CheckBoxPreference
+     			android:title="File list sequentially play"
+     			android:key="AllowPlayStreamsSequentially"
+     			android:persistent="true"
+     			android:summary="Enables sequentially play your entire list of files." />
+    </PreferenceCategory>
+    <PreferenceCategory
+   		android:title="Screen"
+		android:summary="" >
+   		<CheckBoxPreference
+     			android:title="Full screen mode"
+     			android:key="AllowFullscreenMode"
+     			android:persistent="true"
+     			android:summary="Show/hide notification area in viewing mode." />
+
+<!--    		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="Aspect ratio"
+     			android:key="rendererEnableAspectRatio"
+     			android:persistent="true"
+     			android:summary="Select aspect ratio or full screen mode." />
+ -->   		
+         <org.rtspplayer.sample.util.IntListPreference
+		        android:key="rendererAspectRatioMode"
+		        android:entries="@array/prefs_int_list_aspectratiomode_entries"
+		        android:entryValues="@array/prefs_int_list_aspectratiomode_values"
+		        android:defaultValue="1"
+		        android:title="Video output mode" 
+		     	android:summary=""
+		     	/>
+   		
+	</PreferenceCategory>
+	<PreferenceCategory
+   		android:title="Video decoding"
+		android:summary="" >
+  		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="Video decoding acceleration"
+     			android:key="decoderType"
+     			android:persistent="true"
+     			android:summary="Enable the Native video decoder." />
+   	</PreferenceCategory>
+	<PreferenceCategory
+   		android:title="Video rendering"
+		android:summary="" >
+  		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="Video rendereing acceleration using OpenGL"
+     			android:key="rendererType"
+     			android:persistent="true"
+     			android:summary="Enable optimized OpenGL rendering." />
+  		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="Grayscaled or color video"
+     			android:key="rendererEnableColorVideo"
+     			android:persistent="true"
+     			android:summary="Grayscaled video if setting is off." />
+	</PreferenceCategory>
+    <PreferenceCategory
+   		android:title="Synchronization"
+		android:summary="" >
+  		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="A/V synchronization"
+     			android:key="synchroEnable"
+     			android:persistent="true"
+    			android:summary="Synchronization audio and video streams." />
+  		<org.rtspplayer.sample.util.IntCheckBoxPreference
+     			android:title="Drop video frames"
+     			android:key="synchroNeedDropVideoFrames"
+     			android:persistent="true"
+    			android:summary="Drop video frames if frame is late by PTS." />
+	</PreferenceCategory>
+    <PreferenceCategory
+   		android:title="Streams"
+		android:summary="" >
+         <org.rtspplayer.sample.util.IntListPreference
+		        android:key="connectionProtocol"
+		        android:entries="@array/prefs_int_list_connectiontype_entries"
+		        android:entryValues="@array/prefs_int_list_connectiontype_values"
+		        android:defaultValue="-1"
+		        android:title="RTSP tunneling" 
+		     	android:summary="Network protocol for RTP streaming."
+		     	/>
+	    <org.rtspplayer.sample.util.IntEditTextPreference
+		     	android:key="connectionDetectionTime"
+		     	android:title="Probe time"  
+		     	android:summary="Detection time of video and audio parameters (msec)."
+		     	android:inputType="number"
+		     	/>
+	    <org.rtspplayer.sample.util.IntEditTextPreference
+		     	android:key="connectionBufferingTime"
+		     	android:title="Buffering on start"  
+		     	android:summary="Size of buffering on stream start (msec)."
+		     	android:inputType="number"
+		     	/>
+	</PreferenceCategory>
+    <PreferenceCategory
+   		android:title="Misc"
+		android:summary="" >
+  		<CheckBoxPreference
+     			android:title="Show preview"
+     			android:key="showPreview"
+     			android:persistent="true"
+    			android:summary="Show preview screen over list." 
+    			/>
+        <org.rtspplayer.sample.util.IntEditTextPreference
+		     	android:key="thumbnailThreadCount"
+		     	android:title="Refresh stream thumbnail"  
+		     	android:summary="Number of threads used for update stream thumbnails. Range: 0 - 20. 0 - disable update."
+		     	android:inputType="number"
+		     	/>
+	 </PreferenceCategory>
+    	
+</PreferenceScreen>
+
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="ContentDescription">
+        <ignore path="res/layout-normal-land-mdpi/activity_main.xml" />
+    </issue>
+    <issue id="HardcodedText">
+        <ignore path="res/layout-normal-land-mdpi/activity_main.xml" />
+    </issue>
+    <issue id="NestedWeights">
+        <ignore path="res/layout-normal-land-mdpi/activity_main.xml" />
+    </issue>
+    <issue id="NewApi">
+        <ignore path="src/org/rtspplr/app/activity/MainActivity.java" />
+    </issue>
+    <issue id="UselessParent">
+        <ignore path="res/layout-normal-land-mdpi/activity_main.xml" />
+    </issue>
+</lint>

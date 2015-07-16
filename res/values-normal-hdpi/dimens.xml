@@ -1,0 +1,9 @@
+<resources>
+    <item type="dimen" name="land_player_control_caption"> 0.08 </item>
+    <item type="dimen" name="land_dummy_weight"> 0.74 </item>
+    <item type="dimen" name="land_player_control_control_weight"> 0.18 </item>
+    
+    <item type="dimen" name="port_player_control_caption"> 0.08 </item>
+    <item type="dimen" name="port_dummy_weight"> 0.82 </item>
+    <item type="dimen" name="port_player_control_control_weight"> 0.1 </item>
+</resources>

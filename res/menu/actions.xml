@@ -1,0 +1,40 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:tools="http://schemas.android.com/tools"
+      tools:context="org.rtspplayer.sample.MainActivity" >
+
+    <item android:id="@+id/action_play"
+          android:icon="@drawable/pl_2"
+          android:showAsAction="always"
+          android:title="@string/action_bar_play" />
+    
+    <item android:id="@+id/action_add"
+          android:icon="@drawable/pl"
+          android:showAsAction="always"
+          android:title="@string/action_bar_add" />
+    
+    <item android:id="@+id/action_settings"
+		  android:orderInCategory="100"
+          android:showAsAction="never"
+          android:title="@string/action_settings" />
+<!--
+    <item android:id="@+id/action_delete"
+		  android:orderInCategory="100"
+          android:showAsAction="never"
+          android:title="@string/action_bar_delete" />
+-->          
+
+    <item android:id="@+id/action_send_log"
+		  android:orderInCategory="100"
+          android:showAsAction="never"
+          android:title="@string/action_send_log" />
+
+    <item android:id="@+id/action_help"
+		  android:orderInCategory="100"
+          android:showAsAction="never"
+          android:title="@string/action_help" />
+
+    <item android:id="@+id/action_exit"
+		  android:orderInCategory="100"
+          android:showAsAction="never"
+          android:title="@string/action_exit" />
+</menu>

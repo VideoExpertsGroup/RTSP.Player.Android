@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="android_ui_control_panel_background">#858C0000</color>
+    <color name="view_grid_item_text_background">#85C0C0C0</color>
+    <color name="semitransparent_black">#99000000</color>
+    <color name="semitransparent_gray">#802a2a2a</color>
+</resources>
