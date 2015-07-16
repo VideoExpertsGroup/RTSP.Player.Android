@@ -14,3 +14,8 @@
 *  Hardware decoder using hardware acceleration with processor optimization – high speed rendering for modern platform
 *  Multi-core decoding provides the dual-core device’s performance 
 
+
+![RTSP player sample1](http://www.videoexpertsgroup.com/git/sample1.png)
+
+![RTSP player sample](http://www.videoexpertsgroup.com/git/sample2.png)
+
