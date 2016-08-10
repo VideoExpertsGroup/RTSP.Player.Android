@@ -1,0 +1,304 @@
+Mobile Video Playback SDK Features :
+- Hardware acceleration - Hardware acceleration to decode HD video (H.264, MPEG4, MPEG2 and other).
+- Multi-core decoding -  Support of multiple-core decoding.
+- Multi-channel support  - Support of simultaneous connections to multiple video resources. 
+- Integration with active apps  - Mobile Video Playback SDK is based on SurfaceView and can be integrated with any activity.
+- H/W post and pre-video processing - h/w de-interlacing and pre-processing using openGL shaders
+- Custom and standard notifications -  the network module notifies application about connection, disconnection and other events. 
+  There is possibility to add  custom event.
+- Preview mode
+- Stream playback : Multicast/Unicast UDP, HTTP and HTTPS tunnneling for RTSP
+- Supported file formats : AVI, 3GP, M4V, MP4, WMV, FLV, MPEG, MPG, MOV, RM, VOB, ASF, MKV, F4V, TRP, TS, TP and so on
+- Supported Network protocols : HTTP-HLS, RTSP, RTP, UDP (Multicast stream support), RTMP, MMS and so on
+- Smart and online thumbnails – quick and simple API to get a thumbnail for local files and network streams
+- Low latency for network stream – special API to control playback latency
+
+SDK can be used in IPTV, Android clien of Surevelene system , IP camera viewers , TV player and other kind of applications with video playback.
+Source code of samples can be provided. 
+
+
+----------------
+Changes log
+----------------
+
+Version 4.4.20160502
+----------------
+
+- Fixed crash if audio decoder is not opened and STAT is enabled.
+- Added WMA support with various frame  
+- Added getStreamInfo with stream Metadata only. Metadata for: context, chapter, program, stream, shoutcast
+- Added checking m3u and pls files , first stream is played by defualt
+- Fixed GetStatFPS
+- Start position is added for HLS stream with tag COMPLETE_
+- Fixed crash on attempt make utf string from not utf char* in JNI
+- Added support of DVB subtitle
+- SSL is 1.0.2g
+- Fixd ABR mode corrected. 2. https m3u8 list support added. 3. fps statistics corrected.
+- Added change seek and pause on RTSP protocola
+- Fixed Auto detection of CPU in case Open+Cpnfig
+- Added record for audio only 
+- Improved video quality on s/w render
+- Improved A/V sync 
+- Added special mode with minimal latency
+
+Version 4.3.20160122
+----------------
+- Fixed issue:  recorded files (mp4) are not played by regular android player and some social network
+- Fixed issue: datareceive_timeout value was reset to 1 after file playback
+- Added decoder restart if there is exception in decoder
+- Added new settings in config
+  setDecoderLatency/getDecoderLatency
+  - Setting works if s/w decoder i used , 1 - Low latency, frames are not buffered on decoder , 0 - frames are buffered in video decoder  by default
+  getInterruptOnClose/setInterruptOnClose
+  1 - interrupt connection and close, 0 - do not set a interruption close operation  stream and send TEARDOWN command
+  getConnectionTimeout/setConnectionTimeout
+  Interrupt connection by timeout if server does not respond 
+- Added mc_sei message for test purposes 
+- Fixed issue : frames are rendered with max speed if AV sync is OFF
+- Added Record OFF mode handled to reduce resource usage:
+   player.getConfig().setMode(PlayerModes.PP_MODE_ALL.val() & ~(PlayerModes.PP_MODE_RECORD.val()));
+- Added property to get last response for HTTP/RTMP  
+  PP_PROPERTY_PLP_RESPONSE_TEXT(4),
+  PP_PROPERTY_PLP_RESPONSE_CODE(5);
+- Added sample MediaPlayerSDKTest_LowLatency with minimal latency  
+
+
+
+Version 4.2.20151109
+----------------
+- Added the support of Android 6.0
+- Added mode "Record only" 
+- Added method to set start and end position for trim file
+- Fixed support for arm64-v8a 
+- PLP_ERROR event has extended. PP_PROPERTY_PLP_LAST_ERROR property added, use getPropInt(PP_PROPERTY_PLP_LAST_ERROR), getPropString(PP_PROPERTY_PLP_LAST_ERROR) to extract last error. There are streams has to be re-opened on error.
+- Fixed  Volume boost and volume detection corrected
+- Added support for RTMP+Wowza+TEA
+- Added Custom size for thumbnail
+- Added API to set cookie for HLS stream
+- Added new mode 21 "Crop by width"
+- Fixed crash on some decoders when pts discontinuity and multi-instance hw decoder initializations
+- Implemented hot swap surface for renderer. Also possible rendering with null surfcae
+- Added samples : MultiInstance,SwapVideoSurface,StreamControl,Android Studio and other 
+
+
+Version 3.1.20150410
+----------------
+- Added CP_RECORD_CLOSED notification
+- Fixed some bugs in recording 
+- Implmented record provider in seprate thread 
+- Added statistics parameters : PP_RECORD_STAT_DURATION_TOTAL, PP_RECORD_STAT_SIZE_TOTAL
+- Implemented asynchronous getaddrinfo() to avoid blocking on open stream
+- Added converation for PCM sample 8 and 32 bytes
+- Added M3U8 class to parse m3u8 stream list
+- Added subtitle rendering: SUBRIP,WEBVTT,TEXT,XSUB and other
+- Added API to control subtitle stream : SubtitleGetCount, SubtitleSelect,SubtitleGetSelected,SubtitleSourceAdd,SubtitleSourceRemove
+- Added ext_stream funtion that set number of stream  in HLS list
+- Fixed EOS is not handled is file is located on server
+- Added select audio track
+- Added functions to audio select : AudioGetCount,AudioSelect,AudioGetSelected,
+- Added function SetSurface for rednering before Open (it is ised for integration with Chromium source code)
+- Added function GetDataDelayOnSource
+- Implemented windowless mode
+- Fixed SetFFRate() in audio only mode corrected
+- setLiveStreamPosition and setStreamStreamPosition are anisochronous  
+- Added PLB_SEEN_COMPLETED event , event comes if change position is completed
+- Added SubtitleSourceAdd/SubtitleSourceRemove to add/remove external subtitles
+- Added buffering on pause state
+- Added State diagram in documentation
+- Adde new samples : MediaPlayerSDKTest_2Webviews,MediaPlayerSDKTest_ExternalSurface,MediaPlayerSDKTest_Multi,MediaPlayerSDKTest_StreamControl,Player3
+- Added audio filters ( atempo, volume ) 
+- Added volume boost [-30,30]dB support added, setVolumeBoost function API 
+- Added filter volumedetect
+- Added functions startVolumeDetect(max_samples), setVolumeBoost(val_dB)
+- Added notification ARP_VOLUME_DETECTED(503)
+- Added PlayerProperties PP_PROPERTY_AUDIO_VOLUME_MEAN, PP_PROPERTY_AUDIO_VOLUME_MAX have added
+
+Version 2.0.20141126
+----------------
+- Added API to record media to file (RecordStart,RecordStop,RecordGetFileName)
+- Added support for Android 5.0
+- Added support for API 10(Adnroid 2.3.3) - s/w decoding only
+- Added API to change playback speed for files(setFFRate)
+- Fixed issue :  audio decoder is crashed on swr_convert  			
+- Added support mode Play next frame if Pause is On
+- Fixed fps calculation
+
+
+Version 2.0.20141023
+----------------
+- Added support of 4K resolution,Increased the buffers size if  resolution is UHD(3840x2160)
+- Added the support of ES1 
+- Added support for new config RGB 565 in case if RGB8888 is not supported :  EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL_RED_SIZE, 5, EGL_GREEN_SIZE, 6, EGL_BLUE_SIZE, 5, EGL_ALPHA_SIZE, 0, EGL_NONE
+- Added notification PNC_VIDEO_RENDERER_PROVIDER_FIRSTFRAME_AFTER_PAUSE 
+- Added function getAspectRatioMoveModeAvailableDirections to detect if picture can be shifted
+- Added RTSP tunneling over HTTPS
+- Added fade on start and seek : configPlayer: fade_on_seek,fade_on_start
+- Improved Zoom and Shifting picture  
+- Optimized time of furst frame appearance
+- Fixed issue with leak texture on NV12 software decoding/rendering
+- Fixed issue : crash on preview open
+- Fixed possible crash in omx decoder
+- Fixed issue : surface size is 10x10 when h/w is changed on s/w because h/w can not bed opened
+- Fixed issue if stream is opened in Full mode on s/w decoder 
+- Fixed issue with thumbnailer thread lock on close(infinite cycle). Added new method event_wait_timed2
+- Fixed issue on s/w decoder  
+- Fixed issue in omx decoder on Android L platform
+- Fixed issue : Size is not changed if Preview mode is off 
+- Fixed issue in in audio decoder when decoder provides wrong channel number on change position
+- Fixed issue EOS does not come on some file
+- Fixed issue : RTSP authentication  does not work if HTTP/HTTPS tunelling is used
+- Tuned Video only mode if sample rate and channel number are not detected by source,
+	Skip video frame after decoder if decode_error_flags is not 0 
+		
+
+
+Version 2.0.20140829
+----------------
+
+Added thumbnailer class to get thumbnail and information about stream for local file or network stream.
+Smart algorithm to get thumbnail from local file and possibility to get thumbnail from live streams.     
+Added new settings in Open :
+    ConnectionNetworkProtocol - RTP transport protocol and RTSP tunneling:
+    - RTP by UDP
+    - RTP by TCP
+    - RTSP + HTTP tunneling
+    - RTSP + HTTPS tunneling
+    - AUTO by default.
+    ConnectionDetectionTime - probing time of media format (in milliseconds)
+    ConnectionBufferingTime - buffer on start (in milliseconds)
+Added the support of raw video formats(ARGB,YUV and so on)
+Added callback for renderer thread for stream type:DATA
+Added new method: OnReceiveData in MediaPlayerCallback interface
+Fixed issue with wrong calculated analyzeduration parameter
+Fixed exception FindClass with empty string on art VM  
+Implemented new pause/unpause based on new event functionality (to minimize battery consumption in Pause state)
+Added setLiveStreamPosition, getLiveStreamPosition to constol position in live streams
+Compiled FFMPEG with ssl support : encyprted HLS,RTSP tunnling HTTPS, and playback files from HTTPS are supported
+Fixed issue in change position if playar is paused
+Implemented following control modes of video output :  
+    - Strech              - Video size is according screen size
+    - Fit to screen    - Vidoe Size is fitted to screen size and Aspect ratio
+    - Crop                - Aspect ratio and Fit/Crop to screen height
+    - 100%               - Native size
+    - Zoom&Move   - Set position and size of output video picture 
+Added Audio only mode 
+Fixed change position for TS stream
+Added new method to thumbnailer class: getInfo - return file info in xml format
+Fixed issue if change position is set and playback is not started
+Implemented new API to open stream MediaPlayerConfig + Open
+Fixed issue : last frame is not redrew  on Pause state
+
+
+Version 1.5.20140610
+----------------
+
+Multi Instance (up to 6 h/w decoder in depends of device and stream resolution)
+2 samples MediaPlayerSDKTest and MediaPlayerSDKTest_Multi are included in FrameWork
+FFMPEG 2.2
+low_res is 1 for all devices if resolution is 720p and 1080
+MPEG4 and MPEG2 h/w decoder 
+EGL and java audio renderers (SDL renderers are not used)
+Fixed issue with redraw frame after resize and change position on paused state in s/w decoder
+Fixed issue with background color on wrong places
+
+
+
+Version 1.4.20140521
+----------------
+
+Added the Multi-core support
+Implemented local file playback (change position, get duration)
+Implemented function to get screen shot
+Added API to set and get position in local file
+Multicast  support (MulticastSupport.pdf)
+Added the feature:Video only playback
+Implmented preview mode : VideoOnly and I frame (function OpenAsPreview)
+Fixed : negative pts in h/w decoder
+Fixed :  Extra data and mp4toannexb  to playback h264 video
+Added Downmix for audio channels,  support number of channels : 2,3,4,5,6 and mono
+Added End of file message
+Added the support of No Neon platfrom
+Added function to set background
+TCP-RTSP, HTTP-RTSP modes are selected in turn
+
+
+Version 1.3.20140120
+----------------
+
+Fixed issue on week platform (1 core only)
+Fixed aspect ratio for HW decoder
+Improvmented   : Hardware decoder now decode directly to surface
+Added h/w de-interlacing for NV12(NV21) color format
+Modified build process for support all platforms(armv7a, armv7a-noneon, x86, arm)
+Optimized FFMPEG
+
+
+Version 1.2.20131129
+----------------
+
+
+Added HW decoder h264
+Added OpenGL renderer
+Added options on start
+Commnted libstagefright decoder
+Changed algorithm to detect CPU abi
+Fixed android 4.4
+Fixed some memory leak
+Cleared build environment for multi platform
+Fixed audio issue : audio decoder was stopped
+Decreased size of ffmpeg libraries
+Added full screen video mode
+Added the support of external storage
+Disabled i-frame only notification
+Added notification to video renderer : "Need_Skip_Frame"
+Added handler for notification "Need_Skip_Frame" in content provider
+
+
+Version 1.1.20131031
+----------------
+
+Replace Join on while to descrease connection/disconnection time 
+Added paused state in player
+Fixed audio track leak on close
+Added support AV_PIX_FMT_YUVJ420. Color is inversed on some channels
+Added "quit" in audio renderer
+Fixed potential problem in open  
+Added support "datareceive_timeout". Timeout for data receiving can be received
+Changed algorithm of video aspect ratio
+Added new notifification PNC_VIDEO_RENDERER_PROVIDER_NEEDSURFACE for initialize Surface before video renderer init
+Added the support of alternatives urls (tag:url1 in xml)
+Added Statistics . Statistics are printed in log 1 time per seconds 
+Added TIME_SHIFTING definition to enable/disable code
+Fixed issue with exception in SDL
+Fixed : Correct return failed from sdl video renderer
+Fixed missed clean content provider on close
+Added checking of player thread on closed state
+Fixed glitch with broken audio frame
+Improved mechanism of notification
+Added terminate for egldisplay
+Added notification about error: failed_init for decoders and renderers
+Added notification mechanism for all native modules. Now supported: disconnect, close_thread
+Added interrupt before close. This is avoid av_read_frame hung in some situations
+Decreased the buffers size for audio and video renders 
+Fixed memory leak : Free all the memory allocated for an AVDictionary struct on failed
+Fixed WMA decoder: if buffer size after decoder is more than requested buffer in audio render 
+
+
+Version 1.0.20130927
+----------------
+
+Improved A/V sync 
+Added checking on h264 type for hardware decoder
+Added need drop = 1 setting
+Added rotation support for video output
+Fixed video aspect ratio
+Fixed aspect ratio for all video modes(opengl-grayscale, opengl-color, sdl)
+Added interrupt functionality
+Added interrupt status code
+Check interrupted state on Open stage
+Added resize support in player
+Fixed extradata moved to instance for audio decoder
+Fixed problem with ogg/theora links
+Added the mechanism of events sending
+
+
