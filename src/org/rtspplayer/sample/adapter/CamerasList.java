@@ -101,7 +101,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 
-public class CamerasList extends GridAdapter 
+public class CamerasList extends GridAdapter
 {
     private Context context;
     private Activity owner;
@@ -260,8 +260,15 @@ public class CamerasList extends GridAdapter
 		boolean bFound = false;
 		
 		GridData selGd = null;
-    	for( GridData gd : itemList)
-    	{
+		ArrayList<GridData> searchableArr=null;
+
+		if(MainActivity.screenMode!= MainActivity.ScreenMode.MultiView)
+			searchableArr=itemList;
+		else
+			searchableArr=MainActivity._2x2camerasData;
+
+		for( GridData gd : searchableArr)
+		{
 			if (bFound)
 			{
 				selGd = gd;
@@ -284,8 +291,15 @@ public class CamerasList extends GridAdapter
 		boolean bFound = false;
 		
 		GridData selGd = null;
-    	for( GridData gd: itemList)
-    	{
+		ArrayList<GridData> searchableArr=null;
+
+		if(MainActivity.screenMode!= MainActivity.ScreenMode.MultiView)
+			searchableArr=itemList;
+		else
+			searchableArr=MainActivity._2x2camerasData;
+
+		for( GridData gd : searchableArr)
+		{
     		if(gd.id == id)
     			break;
     		

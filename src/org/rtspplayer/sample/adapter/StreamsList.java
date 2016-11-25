@@ -230,18 +230,26 @@ public class StreamsList extends GridAdapter
 		boolean bFound = false;
 		
 		GridData selGd = null;
-    	for( GridData gd : itemList)
+
+		ArrayList<GridData> searchableArr=null;
+
+		if(MainActivity.screenMode!= MainActivity.ScreenMode.MultiView)
+			searchableArr=itemList;
+		else
+		    searchableArr=MainActivity._2x2camerasData;
+
+    	for( GridData gd : searchableArr)
     	{
 			if (bFound)
 			{
 				selGd = gd;
 				break;
 			}
-			
+
     		if(gd.id == id)
     			bFound = true;
     	}
-    	
+
         if (!bFound || selGd == null)
         	return null;
         
@@ -254,7 +262,14 @@ public class StreamsList extends GridAdapter
 		boolean bFound = false;
 		
 		GridData selGd = null;
-    	for( GridData gd: itemList)
+		ArrayList<GridData> searchableArr=null;
+
+		if(MainActivity.screenMode!= MainActivity.ScreenMode.MultiView)
+			searchableArr=itemList;
+		else
+			searchableArr=MainActivity._2x2camerasData;
+
+		for( GridData gd : searchableArr)
     	{
     		if(gd.id == id)
     			break;

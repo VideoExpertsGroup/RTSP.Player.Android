@@ -42,14 +42,7 @@
 	        android:layout_width="fill_parent"
 	   	    android:layout_height="fill_parent" />
 	   	
-		<ProgressBar
-		   	style="?android:attr/progressBarStyleLarge"
-		    android:id="@+id/layout_hide_progress"
-		   	android:layout_width="wrap_content"
-		   	android:layout_height="wrap_content"
-		   	android:visibility="invisible"
-			android:layout_gravity="center" />
-	
+
 		<ImageView
 		    android:id="@+id/pic_status_disconnected"
 		    android:layout_width="wrap_content"
@@ -81,19 +74,39 @@
 		    android:scaleType="fitXY"
 		    android:src="@drawable/preview_rightbottom" />
 		
-		<include
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        layout="@layout/player_locked" />
+
 		
 
-	    <include
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        layout="@layout/player_control_large_port_hdpi" />
+
 						
 				
-	</FrameLayout>  
-	  
+	</FrameLayout>
+
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/cameras2x2con" />
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/player_control_large_port_hdpi" />
+
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+
+		layout="@layout/playersnames" />
+
+	<ProgressBar
+		style="?android:attr/progressBarStyleLarge"
+		android:id="@+id/layout_hide_progress"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="invisible"
+		android:layout_gravity="center" />
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/player_locked" />
 </FrameLayout>    
 

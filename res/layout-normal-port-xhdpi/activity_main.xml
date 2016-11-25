@@ -40,15 +40,18 @@
 	   	<veg.mediaplayer.sdk.MediaPlayer
 	       	android:id="@+id/playerView"
 	        android:layout_width="fill_parent"
-	   	    android:layout_height="fill_parent" />
-	   	
+	   	    android:layout_height="fill_parent" >
+
 		<ProgressBar
-		   	style="?android:attr/progressBarStyleLarge"
-		    android:id="@+id/layout_hide_progress"
-		   	android:layout_width="wrap_content"
-		   	android:layout_height="wrap_content"
-		   	android:visibility="invisible"
+			style="?android:attr/progressBarStyleLarge"
+			android:id="@+id/layout_hide_progress"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:visibility="invisible"
 			android:layout_gravity="center" />
+
+		</veg.mediaplayer.sdk.MediaPlayer>
+
 	
 		<ImageView
 		    android:id="@+id/pic_status_disconnected"
@@ -81,19 +84,32 @@
 		    android:scaleType="fitXY"
 		    android:src="@drawable/preview_rightbottom" />
 		
-		<include
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        layout="@layout/player_locked" />
+
 		
 
-	    <include
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        layout="@layout/player_control_normal_port_xhdpi" />
+
 						
 				
-	</FrameLayout>  
-	  
+	</FrameLayout>
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/cameras2x2con" />
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/player_control_normal_port_xhdpi" />
+
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+
+		layout="@layout/playersnames" />
+
+
+	<include
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		layout="@layout/player_locked" />
 </FrameLayout>    
 

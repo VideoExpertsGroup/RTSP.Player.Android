@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/playersNames"
+    android:orientation="vertical"
+    android:visibility="gone"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/NamesRow0"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal"
+        android:background="@drawable/transparent_2x2">
+
+        <FrameLayout
+            android:id="@+id/name1"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+
+
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/camName1"
+                android:layout_marginTop="0dp"
+                android:textColor="#ffffff"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:background="@drawable/semitransparent"
+
+
+                android:text="cam1"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/name2"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+
+
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="0dp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:background="@drawable/semitransparent"
+                android:id="@+id/camName2"
+                android:text="cam2"/>
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/NamesRow1"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal" >
+
+        <FrameLayout
+            android:id="@+id/name3"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="0dp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:background="@drawable/semitransparent"
+                android:id="@+id/camName3"
+                android:text="cam3"/>
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:id="@+id/name4"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="0dp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:background="@drawable/semitransparent"
+                android:id="@+id/camName4"
+                android:text="cam4"/>
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -38,6 +39,7 @@ import org.rtspplayer.sample.util.HttpClientFactory;
 import org.rtspplayer.sample.util.Logger;
 import org.rtspplayer.sample.util.M3U;
 import org.rtspplayer.sample.util.OnSwipeTouchListener;
+import org.rtspplayer.sample.util.PlayerCallBacks;
 import org.rtspplayer.sample.util.SharedSettings;
 import org.rtspplayer.sample.util.SystemUiHider;
 
@@ -69,6 +71,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -88,18 +91,19 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Switch;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements MediaPlayerCallback, AddChannelDialogListener, GridAdapterCallback/*, AddChannelDialogListener2*/ 
+public class MainActivity extends Activity implements  AddChannelDialogListener, GridAdapterCallback/*, AddChannelDialogListener2*/
 {
-	ListView 	list_docview = null;
-
 	FilesList	filesList	 = null;
 	StreamsList	streamsList	 = null;
 	CamerasList	camerasList	 = null;
@@ -113,21 +117,62 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     private AddChannelDialog mAddChannelDialog=null;
 	//private AddChannelDialog2 mAddChannelDialog2= null;
     
-    private GridData m_cur_item = null;
+    public GridData m_cur_item = null;
     
     final public static String S_CUR_ID = "_id";
     
-    private boolean mPanelIsVisible = true;
+    public boolean mPanelIsVisible = true;
 	private SystemUiHider hider = null;
-    
+	private SystemUiHider hider1 = null;
+
+	static public enum ScreenMode{Preview,OneView,MultiView};
+	public static ScreenMode screenMode=ScreenMode.MultiView;
+
+	static public boolean is_fullScreenMode=false;
+	static public boolean isCurItemDir=false;
+	boolean checkFrom2x2Mode=false;
+	public static boolean fourCamerasGridVisible = false;
+	private FrameLayout vSep1 = null;
+	private FrameLayout vSep2 = null;
+	private FrameLayout hSep = null;
+
+	public static int yearSelWidth=0;
+	public boolean isFullScreen = false;
+	ListView list_docview = null;
+
+	enum playerFullScreen {
+		player1, player2, player3, player4, none
+	}
+	volatile int  currentCameraIn2x2Mode=0;
+	int playersResetIfonBackPressedNumber=0;
+
+	public static ArrayList<GridData> _2x2camerasData=new ArrayList<GridData>();
+	playerFullScreen playerFullScreen;
+	LinearLayout playersCon = null;
+	private MediaPlayer singleCameraModePlayer=null;
+	private MediaPlayer player1 = null;
+	private MediaPlayer player2 = null;
+	private MediaPlayer player3 = null;
+	private MediaPlayer player4 = null;
+	private PlayerCallBacks currentPlayerCallBacks = null;
+	private PlayerCallBacks singleModePlayerCallBacks = null;
+
+	private PlayerCallBacks Player1CallBacks = null;
+	private PlayerCallBacks Player2CallBacks = null;
+	private PlayerCallBacks Player3CallBacks = null;
+	private PlayerCallBacks Player4CallBacks = null;
+
+	ProgressBar loaderIndicator1= null;
+	ProgressBar loaderIndicator2= null;
+	ProgressBar loaderIndicator3= null;
+	ProgressBar loaderIndicator4= null;
+
+	private MediaPlayer fullScreenPlayer = null;
+	private GridData singlePlayerData=null;
+	private LinearLayout playersnames=null;
+
     //player
-	private enum PlayerStatesError
-	{
-	  	None,
-	  	Disconnected,
-	  	Eos
-	};
-	PlayerStatesError player_state_error = PlayerStatesError.None;
+
 
 	private MediaPlayer     player = null;
 	
@@ -169,8 +214,8 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 	//SharedSettings settings = null;
     private boolean 		firstRunned = true;
     
-    private boolean 		isStartedByIntent = false;
-    private boolean 		isFileUrl = false;
+    public boolean 		isStartedByIntent = false;
+    public boolean 		    isFileUrl = false;
     private String  		urlFromIntent = "";
 
     private boolean 		isLowResolutionDevice = false;
@@ -295,6 +340,525 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 		return fileName;
 	}
 
+	public void setTo2x2CamerasLayout() {
+
+
+		hider.mAnchorView.setOnSystemUiVisibilityChangeListener(null);
+
+		hider.mAnchorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+		player1.toggleMute(true);
+		player2.toggleMute(true);
+		player3.toggleMute(true);
+		player4.toggleMute(true);
+
+		final FrameLayout vSep1 = (FrameLayout) findViewById(R.id.verSeparator1);
+		final FrameLayout vSep2 = (FrameLayout) findViewById(R.id.verSeparator2);
+		final FrameLayout hSep = (FrameLayout) findViewById(R.id.horSeparator);
+		final LinearLayout playerRow0 = (LinearLayout) findViewById(R.id.playerRow0);
+		final LinearLayout playerRow1 = (LinearLayout) findViewById(R.id.playerRow1);
+
+		hideProgressView(player);
+		int separatorColor= Color.parseColor("#006280");
+		playersnames.setVisibility(View.VISIBLE);
+		fourCamerasGridVisible=true;
+
+		if (layoutPlayerPanel.getVisibility() == View.VISIBLE) {
+			layoutPlayerPanel.setVisibility(View.GONE);
+
+			// dataselector.hideOpts();
+		}
+
+		showGridSeparators(separatorColor);
+
+		if(playersResetIfonBackPressedNumber!=currentCameraIn2x2Mode)
+			switch (playersResetIfonBackPressedNumber){
+				case 0:player1.Close();
+					selectChannel(_2x2camerasData.get(0));
+					break;
+				case 1:player2.Close();
+					selectChannel(_2x2camerasData.get(1));
+					break;
+				case 2:player3.Close();
+					selectChannel(_2x2camerasData.get(2));
+					break;
+				case 3:player4.Close();
+					selectChannel(_2x2camerasData.get(3));
+					break;
+			}
+
+
+		switch (playerFullScreen) {
+			case player1:
+
+
+
+				LinearLayout.LayoutParams parent = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+				parent.height = 0;
+				parent.weight = (float) 0.5;
+				parent.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow0.setLayoutParams(parent);
+
+				LinearLayout.LayoutParams parent1 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+				parent1.height = 0;
+				parent1.weight = (float) 0.5;
+				parent1.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow1.setLayoutParams(parent1);
+
+				LinearLayout.LayoutParams lpc = (LinearLayout.LayoutParams) player1.getLayoutParams();
+				lpc.width = 0;
+				lpc.weight = (float) 0.5;
+				lpc.height = LinearLayout.LayoutParams.MATCH_PARENT;
+				player1.setLayoutParams(lpc);
+
+				player1.getSurfaceView().setZOrderOnTop(false);
+				player2.getSurfaceView().setZOrderOnTop(false);
+				player3.getSurfaceView().setZOrderOnTop(false);
+				player4.getSurfaceView().setZOrderOnTop(false);
+				playerFullScreen = playerFullScreen.none;
+				isFullScreen = false;
+
+				break;
+			case player2:
+
+
+				LinearLayout.LayoutParams parent3 = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+				parent3.height = 0;
+				parent3.weight = (float) 0.5;
+				parent3.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow0.setLayoutParams(parent3);
+
+				LinearLayout.LayoutParams parent4 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+				parent4.height = 0;
+				parent4.weight = (float) 0.5;
+				parent4.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow1.setLayoutParams(parent4);
+
+				LinearLayout.LayoutParams lpc1 = (LinearLayout.LayoutParams) player2.getLayoutParams();
+				lpc1.width = 0;
+				lpc1.weight = (float) 0.5;
+				lpc1.height = LinearLayout.LayoutParams.MATCH_PARENT;
+				player2.setLayoutParams(lpc1);
+
+				player1.getSurfaceView().setZOrderOnTop(false);
+				player2.getSurfaceView().setZOrderOnTop(false);
+				player3.getSurfaceView().setZOrderOnTop(false);
+				player4.getSurfaceView().setZOrderOnTop(false);
+				isFullScreen = false;
+				playerFullScreen = playerFullScreen.none;
+				break;
+			case player3:
+
+
+				LinearLayout.LayoutParams parent5 = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+				parent5.height = 0;
+				parent5.weight = (float) 0.5;
+				parent5.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow0.setLayoutParams(parent5);
+
+				LinearLayout.LayoutParams parent6 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+				parent6.height = 0;
+				parent6.weight = (float) 0.5;
+				parent6.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow1.setLayoutParams(parent6);
+
+				LinearLayout.LayoutParams lpc3 = (LinearLayout.LayoutParams) player3.getLayoutParams();
+
+				lpc3.width = 0;
+				lpc3.weight = (float) 0.5;
+				lpc3.height = LinearLayout.LayoutParams.MATCH_PARENT;
+				player3.setLayoutParams(lpc3);
+
+				player1.getSurfaceView().setZOrderOnTop(false);
+				player2.getSurfaceView().setZOrderOnTop(false);
+				player3.getSurfaceView().setZOrderOnTop(false);
+				player4.getSurfaceView().setZOrderOnTop(false);
+
+				isFullScreen = false;
+				playerFullScreen = playerFullScreen.none;
+				break;
+			case player4:
+
+				LinearLayout.LayoutParams parent7 = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+				parent7.height = 0;
+				parent7.weight = (float) 0.5;
+				parent7.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow0.setLayoutParams(parent7);
+
+				LinearLayout.LayoutParams parent8 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+				parent8.height = 0;
+				parent8.weight = (float) 0.5;
+				parent8.width = LinearLayout.LayoutParams.MATCH_PARENT;
+				playerRow1.setLayoutParams(parent8);
+
+
+
+				LinearLayout.LayoutParams lpc4 = (LinearLayout.LayoutParams) player4.getLayoutParams();
+
+				lpc4.width = 0;
+				lpc4.weight = (float) 0.5;
+				lpc4.height = LinearLayout.LayoutParams.MATCH_PARENT;
+				player4.setLayoutParams(lpc4);
+
+				player1.getSurfaceView().setZOrderOnTop(false);
+				player2.getSurfaceView().setZOrderOnTop(false);
+				player3.getSurfaceView().setZOrderOnTop(false);
+				player4.getSurfaceView().setZOrderOnTop(false);
+
+				isFullScreen = false;
+				playerFullScreen = playerFullScreen.none;
+				break;
+
+		}
+	}
+
+	private void set_2x2CamNames(GridData[] gridDatas){
+
+		if (gridDatas[0] != null)
+			((TextView) findViewById(R.id.camName1)).setText(gridDatas[0].name);
+
+		if (gridDatas[1] != null)
+			((TextView) findViewById(R.id.camName2)).setText(gridDatas[1].name);
+		else ((TextView) findViewById(R.id.camName2)).setText("");
+		if (gridDatas[2] != null)
+			((TextView) findViewById(R.id.camName3)).setText(gridDatas[2].name);
+		else ((TextView) findViewById(R.id.camName3)).setText("");
+		if (gridDatas[3] != null)
+			((TextView) findViewById(R.id.camName4)).setText(gridDatas[3].name);
+		else ((TextView) findViewById(R.id.camName4)).setText("");
+	}
+	private void hideGridSeparators(){
+		vSep1.setBackgroundColor(Color.BLACK);
+		vSep2.setBackgroundColor(Color.BLACK);
+		hSep.setBackgroundColor(Color.BLACK);
+	}
+	private void showGridSeparators(int separatorColor){
+
+		vSep1.setBackgroundColor(separatorColor);
+		vSep2.setBackgroundColor(separatorColor);
+		hSep.setBackgroundColor(separatorColor);
+
+	}
+
+
+
+
+
+	public void start2X2camerasMode(final GridData[] gridDatas) {
+
+		hider.mAnchorView.setOnSystemUiVisibilityChangeListener(null);
+		hider.mAnchorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+		playerPanelControlPrevStream.setEnabled(false);
+		playerPanelControlNextStream.setEnabled(false);
+
+		_2x2camerasData.clear();
+		for(GridData item:gridDatas)
+			_2x2camerasData.add(item);
+		fourCamerasGridVisible=true;
+
+		playersCon.setVisibility(View.VISIBLE);
+        playersnames.setVisibility(View.VISIBLE);
+		set_2x2CamNames(gridDatas);
+		final FrameLayout vSep1 = (FrameLayout) findViewById(R.id.verSeparator1);
+		final FrameLayout vSep2 = (FrameLayout) findViewById(R.id.verSeparator2);
+		final FrameLayout hSep = (FrameLayout) findViewById(R.id.horSeparator);
+
+		final LinearLayout playerRow0 = (LinearLayout) findViewById(R.id.playerRow0);
+
+		final LinearLayout playerRow1 = (LinearLayout) findViewById(R.id.playerRow1);
+		final int separatorColor= Color.parseColor("#006280");
+
+		showGridSeparators(separatorColor);
+
+		player1.setOnTouchListener(new View.OnTouchListener() {
+			public boolean statusBarVisible=false;
+			public boolean onTouch(View v, MotionEvent event) {
+				//if (gridDatas[0].isActive)
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN: {
+
+						int y=0;
+						if (gridDatas[0]!=null)
+						if(!isFullScreen) {
+
+
+
+								SharedSettings _set = SharedSettings.getInstance();
+								_set.setLongValueForKey(S_CUR_ID, gridDatas[0].id);
+								_set.savedTabNumForSavedId = _set.selectedTabNum;
+								_set.savePrefSettings();
+								playersResetIfonBackPressedNumber = 0;
+								currentCameraIn2x2Mode = 0;
+							    player1.toggleMute(false);
+								player = player1;
+                                hider.hide();
+								playersnames.setVisibility(View.INVISIBLE);
+								fourCamerasGridVisible = false;
+
+								hideGridSeparators();
+								LinearLayout.LayoutParams parent = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+								parent.height = LinearLayout.LayoutParams.MATCH_PARENT;
+								parent.width = LinearLayout.LayoutParams.MATCH_PARENT;
+								playerRow0.setLayoutParams(parent);
+
+								LinearLayout.LayoutParams parent1 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+								parent1.height = 0;
+								parent1.width = 0;
+								parent1.weight = (float) 0.0;
+								playerRow1.setLayoutParams(parent1);
+
+
+								LinearLayout.LayoutParams lpc = (LinearLayout.LayoutParams) player1.getLayoutParams();
+
+								lpc.width = LinearLayout.LayoutParams.MATCH_PARENT;
+								lpc.height = LinearLayout.LayoutParams.MATCH_PARENT;
+								player1.setLayoutParams(lpc);
+
+								player1.getSurfaceView().setZOrderOnTop(false);
+								player2.getSurfaceView().setZOrderOnTop(true);
+								player3.getSurfaceView().setZOrderOnTop(true);
+								player4.getSurfaceView().setZOrderOnTop(true);
+
+								playerFullScreen = playerFullScreen.player1;
+								isFullScreen = true;
+
+							    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+									| View.SYSTEM_UI_FLAG_FULLSCREEN;
+							    hider.setup();
+							    hider.mAnchorView.setSystemUiVisibility(uiOptions);
+
+
+
+						} else hider.hide();
+
+
+					}
+				}
+
+				return true;
+			}
+		});
+
+		player2.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				int y=0;
+				if (gridDatas[1]!=null)
+					switch (event.getAction()) {
+
+						case MotionEvent.ACTION_DOWN: {
+							if(!isFullScreen) {
+
+									SharedSettings _set = SharedSettings.getInstance();
+									_set.setLongValueForKey(S_CUR_ID, gridDatas[1].id);
+									_set.savedTabNumForSavedId = _set.selectedTabNum;
+									_set.savePrefSettings();
+								    player2.toggleMute(false);
+									player = player2;
+									playersResetIfonBackPressedNumber = 1;
+									currentCameraIn2x2Mode = 1;
+
+
+									hideGridSeparators();
+									playersnames.setVisibility(View.INVISIBLE);
+									fourCamerasGridVisible = false;
+									hider.hide();
+									vSep1.invalidate();
+									hSep.invalidate();
+									LinearLayout.LayoutParams parent = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+									parent.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									parent.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									playerRow0.setLayoutParams(parent);
+
+									LinearLayout.LayoutParams parent1 = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+									parent1.height = 0;
+									parent1.width = 0;
+									parent1.weight = (float) 0.0;
+									playerRow1.setLayoutParams(parent1);
+
+
+									LinearLayout.LayoutParams lpc = (LinearLayout.LayoutParams) player2.getLayoutParams();
+
+									lpc.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									lpc.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									player2.setLayoutParams(lpc);
+
+									player1.getSurfaceView().setZOrderOnTop(true);
+									player2.getSurfaceView().setZOrderOnTop(false);
+									player3.getSurfaceView().setZOrderOnTop(true);
+									player4.getSurfaceView().setZOrderOnTop(true);
+									isFullScreen = true;
+									playerFullScreen = playerFullScreen.player2;
+								    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+										| View.SYSTEM_UI_FLAG_FULLSCREEN;
+								    hider.setup();
+								    hider.mAnchorView.setSystemUiVisibility(uiOptions);
+
+							}else hider.hide();
+
+						}
+					}
+
+				return true;
+			}
+		});
+
+		player3.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				int y=0;
+				if (gridDatas[2]!=null)
+					switch (event.getAction()) {
+						case MotionEvent.ACTION_DOWN: {
+							if(!isFullScreen) {
+
+									SharedSettings _set = SharedSettings.getInstance();
+									_set.setLongValueForKey(S_CUR_ID, gridDatas[2].id);
+									_set.savedTabNumForSavedId = _set.selectedTabNum;
+									_set.savePrefSettings();
+								    player3.toggleMute(false);
+									player = player3;
+									playersResetIfonBackPressedNumber = 2;
+									currentCameraIn2x2Mode = 2;
+
+									hideGridSeparators();
+									playersnames.setVisibility(View.INVISIBLE);
+									fourCamerasGridVisible = false;
+									hider.hide();
+
+
+									LinearLayout.LayoutParams parent = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+									parent.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									parent.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									parent.weight = (float) 1.0;
+									playerRow1.setLayoutParams(parent);
+
+									LinearLayout.LayoutParams parent1 = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+									parent1.height = 0;
+									parent1.width = 0;
+									parent1.weight = (float) 0.0;
+									playerRow0.setLayoutParams(parent1);
+
+
+									LinearLayout.LayoutParams lpc = (LinearLayout.LayoutParams) player3.getLayoutParams();
+
+									lpc.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									lpc.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									player3.setLayoutParams(lpc);
+
+									player1.getSurfaceView().setZOrderOnTop(true);
+									player2.getSurfaceView().setZOrderOnTop(true);
+									player3.getSurfaceView().setZOrderOnTop(false);
+									player4.getSurfaceView().setZOrderOnTop(true);
+
+									isFullScreen = true;
+									playerFullScreen = playerFullScreen.player3;
+								    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+										| View.SYSTEM_UI_FLAG_FULLSCREEN;
+								    hider.setup();
+								    hider.mAnchorView.setSystemUiVisibility(uiOptions);
+
+							}
+							else hider.hide();
+
+						}
+					}
+
+				return true;
+			}
+		});
+
+		player4.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				if (gridDatas[3]!=null)
+					switch (event.getAction()) {
+						case MotionEvent.ACTION_DOWN: {
+
+							if(!isFullScreen) {
+
+									SharedSettings _set = SharedSettings.getInstance();
+									_set.setLongValueForKey(S_CUR_ID, gridDatas[3].id);
+									_set.savedTabNumForSavedId = _set.selectedTabNum;
+									_set.savePrefSettings();
+								    player4.toggleMute(false);
+									player = player4;
+									playersResetIfonBackPressedNumber = 3;
+									currentCameraIn2x2Mode = 3;
+
+									hideGridSeparators();
+									playersnames.setVisibility(View.INVISIBLE);
+									fourCamerasGridVisible = false;
+									hider.hide();
+
+									LinearLayout.LayoutParams parent = (LinearLayout.LayoutParams) playerRow1.getLayoutParams();
+									parent.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									parent.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									playerRow1.setLayoutParams(parent);
+
+									LinearLayout.LayoutParams parent1 = (LinearLayout.LayoutParams) playerRow0.getLayoutParams();
+									parent1.height = 0;
+									parent1.width = 0;
+									parent1.weight = (float) 0.0;
+									playerRow0.setLayoutParams(parent1);
+
+									LinearLayout.LayoutParams lpc = (LinearLayout.LayoutParams) player4.getLayoutParams();
+									lpc.width = LinearLayout.LayoutParams.MATCH_PARENT;
+									lpc.height = LinearLayout.LayoutParams.MATCH_PARENT;
+									player4.setLayoutParams(lpc);
+
+									player1.getSurfaceView().setZOrderOnTop(true);
+									player2.getSurfaceView().setZOrderOnTop(true);
+									player3.getSurfaceView().setZOrderOnTop(true);
+									player4.getSurfaceView().setZOrderOnTop(false);
+
+									isFullScreen = true;
+									playerFullScreen = playerFullScreen.player4;
+								    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+										| View.SYSTEM_UI_FLAG_FULLSCREEN;
+								    hider.setup();
+								    hider.mAnchorView.setSystemUiVisibility(uiOptions);
+
+							}
+							else hider.hide();
+
+						}
+					}
+
+				return true;
+			}
+		});
+		player = player1;
+		currentPlayerCallBacks=Player1CallBacks;
+		selectChannel(gridDatas[0]);rtmp://10.20.16.128:1936/live/2?sid=lu6hx1dp2sw8xzv6v7c5r31o3c4nqm45
+
+		if (gridDatas[1] != null) {
+			player = player2;
+			((TextView) findViewById(R.id.offStatus2)).setVisibility(View.INVISIBLE);
+			currentPlayerCallBacks=Player2CallBacks;
+			selectChannel(gridDatas[1]);
+		} else
+			((TextView) findViewById(R.id.offStatus2)).setVisibility(View.VISIBLE);
+
+		if (gridDatas[2] != null) {
+			player = player3;
+			((TextView) findViewById(R.id.offStatus3)).setVisibility(View.INVISIBLE);
+			currentPlayerCallBacks=Player3CallBacks;
+			selectChannel(gridDatas[2]);
+		} else
+			((TextView) findViewById(R.id.offStatus3)).setVisibility(View.VISIBLE);
+
+		if (gridDatas[3] != null) {
+			player = player4;
+			((TextView) findViewById(R.id.offStatus4)).setVisibility(View.INVISIBLE);
+			currentPlayerCallBacks=Player4CallBacks;
+			selectChannel(gridDatas[3]);
+		} else
+			((TextView) findViewById(R.id.offStatus4)).setVisibility(View.VISIBLE);
+
+		player1.toggleMute(true);
+		player2.toggleMute(true);
+		player3.toggleMute(true);
+		player4.toggleMute(true);
+		// player.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+	}
 //    ViewTreeObserver.OnGlobalLayoutListener layoutListListener = new ViewTreeObserver.OnGlobalLayoutListener() 
 //    {
 //        @Override
@@ -421,7 +985,19 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 		
 		SharedSettings.getInstance(this).loadPrefSettings();
 		SharedSettings.getInstance().savePrefSettings();
-		
+		int currentMode=PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("view", -1);
+
+		switch (currentMode){
+		case(0):screenMode=ScreenMode.Preview;
+			break;
+		case(1):screenMode=ScreenMode.OneView;
+			break;
+		case(2):screenMode=ScreenMode.MultiView;
+			break;
+		default:screenMode=ScreenMode.MultiView;
+	}
+
+
 		showPreview = guardedByBuildversionBooleanValue(SharedSettings.getInstance().showPreview);
 		
     	printResolutionDevice();
@@ -453,15 +1029,40 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 	    playerPanelControlScreen = (ImageButton) findViewById(R.id.buttonPanelPlayerControlAspect);
 
 		list_docview = (ListView) findViewById(R.id.listDocuments);
-        player = (MediaPlayer)findViewById(R.id.playerView);
-    	
+		player1 = (MediaPlayer) findViewById(R.id.playerView1);
+
+		playerContainer.setVisibility(screenMode==ScreenMode.Preview?View.VISIBLE:View.INVISIBLE);
+
+		player = player1;
+		player2 = (MediaPlayer) findViewById(R.id.playerView2);
+
+		player3 = (MediaPlayer) findViewById(R.id.playerView3);
+		player4 = (MediaPlayer) findViewById(R.id.playerView4);
+		singleCameraModePlayer = (MediaPlayer)findViewById(R.id.playerView);
+
+		singleModePlayerCallBacks=new PlayerCallBacks(this,singleCameraModePlayer);
+		currentPlayerCallBacks =singleModePlayerCallBacks;
+		Player1CallBacks=new PlayerCallBacks(this,player1);
+		Player2CallBacks=new PlayerCallBacks(this,player2);
+		Player3CallBacks=new PlayerCallBacks(this,player3);
+		Player4CallBacks=new PlayerCallBacks(this,player4);
+
+		playersnames=(LinearLayout)findViewById(R.id.playersNames);
+		playersCon = (LinearLayout) findViewById(R.id.players2x2_container);
+		loaderIndicator1=(ProgressBar) findViewById(R.id.loaderIndicator1);
+		loaderIndicator2=(ProgressBar) findViewById(R.id.loaderIndicator2);
+		loaderIndicator3=(ProgressBar) findViewById(R.id.loaderIndicator3);
+		loaderIndicator4=(ProgressBar) findViewById(R.id.loaderIndicator4);
+		vSep1 = (FrameLayout) findViewById(R.id.verSeparator1);
+		vSep2 = (FrameLayout) findViewById(R.id.verSeparator2);
+		hSep = (FrameLayout) findViewById(R.id.horSeparator);
         ViewTreeObserver observerList = list_docview.getViewTreeObserver();
         observerList.addOnGlobalLayoutListener(layoutListListener); 
 
         ViewTreeObserver observerEmpty = viewListEmpty.getViewTreeObserver();
         observerEmpty.addOnGlobalLayoutListener(layoutEmptyListener); 
     	
-	    hider = SystemUiHider.getInstance(this, playerContainer, SystemUiHider.FLAG_HIDE_NAVIGATION);
+	    hider = SystemUiHider.getInstance(this,findViewById(R.id.container), SystemUiHider.FLAG_HIDE_NAVIGATION);
 	    hider.setup();
 	    hider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() 
 	    {
@@ -714,9 +1315,79 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 		    	Log.i(TAG, "=OnSwipeTouchListener singleTap x="+x+" y="+y);
 	        	if (isLocked)
 	        		return;
-		    	
-		    	selectChannel(x,y);
+				if(screenMode==ScreenMode.MultiView)
+				{
+					boolean start2x2CamGrid=false;
+					if(currentList != filesList)
+						start2x2CamGrid=true;
+					     else{
+						checkFrom2x2Mode=true;
+						selectChannel(x, y);
+						if(!isCurItemDir)
+							start2x2CamGrid=true;
+						 else
+							start2x2CamGrid=false;
+					}
+					checkFrom2x2Mode=false;
+                        if(start2x2CamGrid) {
+							hideControlPanelAndGrid();
+
+							int i = list_docview.pointToPosition(x, y);
+							int size = currentList.getCount();
+							int rangeBoundary = i + 3 - (size - 1);
+
+							if (rangeBoundary > 0) {
+								GridData[] arr = new GridData[4];
+								for (int j = 3; j >= 0; --j)
+									if (rangeBoundary-- > 0)
+										arr[j] = null;
+									else
+										arr[j] = (GridData) list_docview.getItemAtPosition(i + j);
+								start2X2camerasMode(arr);
+							} else
+								start2X2camerasMode(new GridData[]{(GridData) list_docview.getItemAtPosition(i), (GridData) list_docview.getItemAtPosition(i + 1), (GridData) list_docview.getItemAtPosition(i + 2), (GridData) list_docview.getItemAtPosition(i + 3)});
+						}
+
+
+
+				}else {
+
+
+					player = singleCameraModePlayer;
+					currentPlayerCallBacks = singleModePlayerCallBacks;
+
+
+
+                    if(screenMode==ScreenMode.Preview) {
+
+
+						selectChannel(x, y);
+					}
+					else{
+						boolean startFullScreen=false;
+						if(currentList != filesList)
+							startFullScreen=true;
+						else{
+							checkFrom2x2Mode=true;
+							selectChannel(x, y);
+							if(!isCurItemDir)
+								startFullScreen=true;
+							else
+								startFullScreen=false;
+						}
+						checkFrom2x2Mode=false;
+						if(startFullScreen) {
+						playerContainer.setVisibility(View.VISIBLE);
+						hideControlPanelAndGrid();
+						mCloseIconsIsVisible = false;
+						currentList.notifyDataSetChanged();
+						selectChannel(x, y);
+
+					}
+				}
+
 		    }
+			}
 			
 		});
 
@@ -729,9 +1400,10 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
                 return true;
             }
         });
-		
-		hideProgressView();
-		
+		player=singleCameraModePlayer;
+
+		hideProgressView(player);
+
 		player.setOnTouchListener(new OnSwipeTouchListener() 
 		{
 		    public void swipeRight(int x, int y) 
@@ -847,6 +1519,8 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 				
 				if (mPanelIsVisible)
 				{
+					playerPanelControlPrevStream.setEnabled(true);
+					playerPanelControlNextStream.setEnabled(true);
 	                hideControlPanelAndGrid();
 	                mCloseIconsIsVisible = false;
 	                currentList.notifyDataSetChanged();
@@ -1237,6 +1911,21 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			@Override
 			public void onClick(View v) 
 			{
+				if(screenMode==ScreenMode.MultiView)
+					switch (playerFullScreen) {
+						case player1:player=player1;
+							break;
+						case player2:player=player2;
+							break;
+						case player3:player=player3;
+							break;
+						case player4:player=player4;
+							break;
+
+					}
+				else
+					player=singleCameraModePlayer;
+
 				refreshPlayerPanelControlVisibleTimer();
 				
 				isLocked = true;
@@ -1253,6 +1942,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			@Override
 			public void onClick(View v) 
 			{
+
 				refreshPlayerPanelControlVisibleTimer();
 				
 				isLocked = false;
@@ -1266,6 +1956,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			@Override
 			public void onClick(View v) 
 			{
+
 				refreshPlayerPanelControlVisibleTimer();
 				//selectNextChannel();
 				playNextChannelOrBack();
@@ -1309,6 +2000,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			@Override
 			public void onClick(View v) 
 			{
+
 				refreshPlayerPanelControlVisibleTimer();
 				//selectPreviousChannel();
 				playPreviousChannelOrBack();
@@ -1336,11 +2028,34 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 				SharedSettings.getInstance().savePrefSettings();
 
 				//player.UpdateView(guardedByOrientationIntValue(sett.rendererEnableAspectRatio) == 1);
-				player.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
-				player.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
-				player.UpdateView();
-				
+				if(screenMode!=ScreenMode.MultiView) {
+					player.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
+					player.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
+					player.UpdateView();
+				}
+				{
+					player1.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
+					player1.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
+					player1.UpdateView();
+
+					player2.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
+					player2.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
+					player2.UpdateView();
+
+					player3.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
+					player3.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
+					player3.UpdateView();
+
+					player4.getConfig().setAspectRatioMode(sett.rendererAspectRatioMode);
+					player4.getConfig().setAspectRatioZoomModePercent(SharedSettings.getInstance().rendererAspectRatioZoomModePercent);
+					player4.UpdateView();
+				}
+
+
+
+
 				updatePlayerPanelControlButtons(isLocked, (player.getState() == PlayerState.Started), sett.rendererAspectRatioMode);
+
 			}
         });
 	}
@@ -1465,8 +2180,15 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			return;
 		
 		Log.v(TAG, "=selectChannel gd=" + gd.url);
-    	if (!currentList.SelectItem(gd))
-    		return;
+    	if (!currentList.SelectItem(gd)) {
+			isCurItemDir=true;
+			return;
+		}
+		else if(checkFrom2x2Mode){
+			isCurItemDir=false;
+			return;
+		}
+
 		
     	SharedSettings _set = SharedSettings.getInstance();
     	_set.setLongValueForKey(S_CUR_ID, gd.id);
@@ -1490,24 +2212,54 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
         selectChannel(currentList.getNextSelectedItem(id));
     }
     
-    private void playNextChannelOrBack() 
+    public void playNextChannelOrBack()
     {
+		GridData selGd = null;
     	if(isModeFile())
     	{
     		playNextFileOrBack();
     		return;
     	}
-    	
-    	SharedSettings _set = SharedSettings.getInstance();
-    	long id = _set.getLongValueForKey(S_CUR_ID);
-    	
-    	GridData selGd = currentList.getNextSelectedItem(id);
+		if(screenMode!=ScreenMode.MultiView) {
+			SharedSettings _set = SharedSettings.getInstance();
+			long id = _set.getLongValueForKey(S_CUR_ID);
+
+			selGd = currentList.getNextSelectedItem(id);
+		}
+		else {
+			if (currentCameraIn2x2Mode + 1 < _2x2camerasData.size()) {
+				currentCameraIn2x2Mode++;
+				selGd = _2x2camerasData.get(currentCameraIn2x2Mode);
+				if (selGd == null) {
+					currentCameraIn2x2Mode--;
+				}
+			}
+			switch (playerFullScreen) {
+				case player1:
+					player = player1;
+					break;
+				case player2:
+					player = player2;
+					break;
+				case player3:
+					player = player3;
+					break;
+				case player4:
+					player = player4;
+					break;
+			}
+		}
         if (selGd == null)
         {
-           	player.Close();
-           	onBackPressed();
-           	return;
-        }
+			if(screenMode!=ScreenMode.MultiView) {
+
+				player.Close();
+				onBackPressed();
+			}
+				return;
+
+			}
+
         
         selectChannel(selGd);
     }
@@ -1552,22 +2304,38 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     
     private void playPreviousChannelOrBack() 
     {
+		GridData selGd=null;
     	if(isModeFile())
     	{
     		playPreviousFileOrBack();
     		return;
     	}
-    	
-    	SharedSettings _set = SharedSettings.getInstance();
-    	long id = _set.getLongValueForKey(S_CUR_ID);
-    	
-    	GridData selGd = currentList.getPreviousSelectedItem(id);
-        if (selGd == null)
-        {
-           	player.Close();
-           	onBackPressed();
-           	return;
-        }
+		if(screenMode!=ScreenMode.MultiView) {
+			SharedSettings _set = SharedSettings.getInstance();
+			long id = _set.getLongValueForKey(S_CUR_ID);
+
+			selGd = currentList.getPreviousSelectedItem(id);
+		}
+		else
+		{
+			if(currentCameraIn2x2Mode-1>=0&&currentCameraIn2x2Mode-1<_2x2camerasData.size()) {
+				currentCameraIn2x2Mode--;
+				selGd= _2x2camerasData.get(currentCameraIn2x2Mode);
+				if (selGd == null) {
+					currentCameraIn2x2Mode++;
+				}
+			}
+		}
+		if (selGd == null)
+		{
+			if(screenMode!=ScreenMode.MultiView) {
+
+				player.Close();
+				onBackPressed();
+			}
+			return;
+
+		}
         
         selectChannel(selGd);
     }
@@ -1620,7 +2388,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     		return;
     	
 		Log.i(TAG, "=>playerConnect " + gd.url + "," + gd.id + "," + player.getState());
-    	if(!isModeFile() &&  m_cur_item != null && gd.id == m_cur_item.id && 
+    	if((screenMode!=ScreenMode.MultiView)&&!isModeFile() &&  m_cur_item != null && gd.id == m_cur_item.id &&
     									player.getState() != PlayerState.Closed)
     	{
     		return;
@@ -1630,7 +2398,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     	
     	if (!showPreview)
     		hideControlPanelAndGrid();
-        
+
        	player.Close();
        	
  		String url = gd.url;
@@ -1695,7 +2463,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
         		rendererAspectRatioMode, 
         		isFileUrl ? 1 : player.getConfig().getDataReceiveTimeout(), 
         		sett.decoderNumberOfCpuCores,
-        		this);
+        		currentPlayerCallBacks);
     	
     }
 	
@@ -1752,7 +2520,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
         		sett.rendererAspectRatioMode, 
         		isFileUrl ? 1 : player.getConfig().getDataReceiveTimeout(), 
         		sett.decoderNumberOfCpuCores, 
-        		this);
+        		currentPlayerCallBacks);
     }
 
     public void playerConnectingFullScreen()
@@ -1785,40 +2553,86 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     };    
     
     @Override
-    public void onBackPressed() 
-    {
+    public void onBackPressed() {
 		Log.i(TAG, "=>onBackPressed isStartedByIntent=" + isStartedByIntent);
-		
-    	if (isLocked)
-    		return;
-    	
-		if (!isStartedByIntent)
-		{
-            if (!mPanelIsVisible)
-            {
-                showControlPanelAndGrid();
-            }
-            else
-            {
-            	
-            	if (currentList.GoBackFromSelectedItem())
-            		return;
-            	
-            	showExitDialog();
-            }
-    		Log.i(TAG, "<=onBackPressed isStartedByIntent="+isStartedByIntent);
-	  		return;			
+		if(screenMode!=ScreenMode.MultiView)	{
+		if (isLocked)
+			return;
+
+		if (!isStartedByIntent) {
+			if (!mPanelIsVisible) {
+				{
+					if(screenMode==ScreenMode.OneView) {
+						player.Close();
+						playerContainer.setVisibility(View.INVISIBLE);
+						invalidateOptionsMenu();
+					}
+
+					showControlPanelAndGrid();
+				}
+			} else {
+
+				if (currentList.GoBackFromSelectedItem())
+					return;
+
+				showExitDialog();
+			}
+			Log.i(TAG, "<=onBackPressed isStartedByIntent=" + isStartedByIntent);
+			return;
 		}
 
-		if(!currentList.isItemExistByUrl(urlFromIntent))
-		{
+		if (!currentList.isItemExistByUrl(urlFromIntent)) {
 			String sName = "External";
-			sName += " "+ new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-			
+			sName += " " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+
 			addChannel(streamsList, sName, urlFromIntent, "", "", 1, 1, "");
 		}
-		
+
 		finish();
+	}
+		else {
+		if (playersCon.getVisibility() == View.VISIBLE) {
+			if (!isFullScreen) {
+				playersnames.setVisibility(View.INVISIBLE);
+				showControlPanelAndGrid();
+				playersCon.setVisibility(View.INVISIBLE);
+				fourCamerasGridVisible=false;
+				ArrayList<MediaPlayer> pl=new ArrayList<MediaPlayer>();
+				pl.add(player1);
+				pl.add(player2);
+				pl.add(player3);
+				pl.add(player4);
+				for(MediaPlayer item:pl)
+				{
+					item.Close();
+					try{
+						Thread.sleep(50);
+					}
+					catch (InterruptedException e){
+
+					}
+				}
+
+
+
+				WindowManager.LayoutParams attrs = getWindow().getAttributes();
+				attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+				getWindow().setAttributes(attrs);
+				hider.setup();
+
+
+			}
+			else
+				setTo2x2CamerasLayout();
+
+			//player.setVisibility(View.GONE);
+
+		} else {
+			if (currentList.GoBackFromSelectedItem())
+				return;
+			showExitDialog();
+		}
+	}
     }
 
 	private void addM3UToList(String url) 
@@ -2073,8 +2887,23 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) 
 	{
+		int currentMode=PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("view", -1);
+
+		switch (currentMode){
+			case(0):screenMode=ScreenMode.Preview;
+				break;
+			case(1):screenMode=ScreenMode.OneView;
+				break;
+			case(2):screenMode=ScreenMode.MultiView;
+				break;
+			default:screenMode=ScreenMode.MultiView;
+		}
+
+			playerContainer.setVisibility(screenMode==ScreenMode.Preview?View.VISIBLE:View.INVISIBLE);
+
 		if (requestCode == 1) 
 		{
+
 			SharedSettings.getInstance().loadPrefSettings();
 			if (SharedSettings.getInstance().LockPlayerViewOrientation == 0)
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -2084,6 +2913,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 			showPreview = guardedByBuildversionBooleanValue(SharedSettings.getInstance().showPreview);
 			if (showPreview)
 			{
+				if(screenMode==ScreenMode.Preview)
 				showPlayerView();
 			}
 			else
@@ -2204,8 +3034,12 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     		mAddChannelDialog.refreshPlayer();
     		return;
     	}
-    	
-		player_state_error = PlayerStatesError.None;
+    	singleModePlayerCallBacks.player_state_error = PlayerCallBacks.PlayerStatesError.None;
+		Player1CallBacks.player_state_error = PlayerCallBacks.PlayerStatesError.None;
+		Player2CallBacks.player_state_error = PlayerCallBacks.PlayerStatesError.None;
+		Player3CallBacks.player_state_error = PlayerCallBacks.PlayerStatesError.None;
+		Player4CallBacks.player_state_error = PlayerCallBacks.PlayerStatesError.None;
+
         if(!isStartedByIntent)
         {
 			isLocked = false;
@@ -2290,11 +3124,32 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
     protected void onResume()
     {
     	super.onResume();
-    	
+		if (playersCon.getVisibility() == View.VISIBLE&&(screenMode==ScreenMode.MultiView)) {
+			if (!isFullScreen) {
+				playersnames.setVisibility(View.INVISIBLE);
+				showControlPanelAndGrid();
+				player1.Close();
+				player2.Close();
+				player3.Close();
+				player4.Close();
+				playersCon.setVisibility(View.INVISIBLE);
+				fourCamerasGridVisible = false;
+			} else {
+				setTo2x2CamerasLayout();
+				playersnames.setVisibility(View.INVISIBLE);
+				showControlPanelAndGrid();
+				player1.Close();
+				player2.Close();
+				player3.Close();
+				player4.Close();
+				playersCon.setVisibility(View.INVISIBLE);
+				fourCamerasGridVisible = false;
+			}
+		}
     	//register FileObserver
     	if(file_observer_v == null){
-    		file_observer_v = new MyContentObserver(handler);
-    		file_observer_a = new MyContentObserver(handler);
+    		file_observer_v = new MyContentObserver(singleModePlayerCallBacks.handler);
+    		file_observer_a = new MyContentObserver(singleModePlayerCallBacks.handler);
     	
         	//File f = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         	//File fp = f.getParentFile();
@@ -2583,8 +3438,10 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
         if (getActionBar() != null)
         	getActionBar().hide();
 
-        if (SharedSettings.getInstance().AllowFullscreenMode)
-        	hider.hide();
+
+        if (SharedSettings.getInstance().AllowFullscreenMode&&!isFullScreen) {
+			hider.hide();
+		}
         
         FrameLayout.LayoutParams lpc = (FrameLayout.LayoutParams) playerContainer.getLayoutParams();
 		lpc.width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -2679,226 +3536,10 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
         return currentList.isItemExistByUrl(url);
     }
     
-    private int mOldMsg = 0;
-	private Handler handler = new Handler() 
-    {
-		String strText = "Status:";
-		
-        @Override
-        public void handleMessage(Message msg) 
-        {
-        	PlayerNotifyCodes status = (PlayerNotifyCodes) msg.obj;
-	    	Log.e(TAG, "Notify: " + status);
-	    	
-	    	switch (status)
-	    	{
-	        	case CP_CONNECT_STARTING:
-	         		//player_state = PlayerStates.Busy;
-	        		player_state_error = PlayerStatesError.None;
-	        		showProgressView();
-	    			break;
-	                
-		    	case VRP_NEED_SURFACE:
-		    		//player_state = PlayerStates.Busy;
-		    		//showVideoView();
-			        //synchronized (waitOnMe) { waitOnMe.notifyAll(); }
-					break;
-	
-		    	case PLP_PLAY_SUCCESSFUL:
-		    		//player_state = PlayerStates.ReadyForUse;
-		    		player_state_error = PlayerStatesError.None;
-		    		hideProgressView();
-					updatePlayerPanelControlButtons(isLocked, true, SharedSettings.getInstance().rendererAspectRatioMode);
-			        break;
-	                
-	        	case PLP_CLOSE_STARTING:
-	        		//player_state = PlayerStates.Busy;
-	                break;
-	                
-	        	case PLP_CLOSE_SUCCESSFUL:
-	        		//player_state = PlayerStates.ReadyForUse;
-	        		hideProgressView();
-					updatePlayerPanelControlButtons(isLocked, false, SharedSettings.getInstance().rendererAspectRatioMode);
-	    			System.gc();
-	                break;
-	                
-	        	case PLP_CLOSE_FAILED:
-	        		//player_state = PlayerStates.ReadyForUse;
-	        		hideProgressView();
-	   			break;
-	               
-	        	case CP_CONNECT_FAILED:
-	        		//player_state = PlayerStates.ReadyForUse;
-	        		player_state_error = PlayerStatesError.Disconnected;
-	        		hideProgressView();
-	    			break;
-	                
-	            case PLP_BUILD_FAILED:
-	            	//player_state = PlayerStates.ReadyForUse;
-	        		player_state_error = PlayerStatesError.Disconnected;
-	            	hideProgressView();
-	    			break;
-	                
-	            case PLP_PLAY_FAILED:
-	            	//player_state = PlayerStates.ReadyForUse;
-	        		player_state_error = PlayerStatesError.Disconnected;
-	            	hideProgressView();
-	    			break;
-	                
-	            case PLP_ERROR:
-	            	//player_state = PlayerStates.ReadyForUse;
-	        		player_state_error = PlayerStatesError.Disconnected;
-	            	hideProgressView();
-	    			break;
-	                
-	            case CP_INTERRUPTED:
-	            	//player_state = PlayerStates.ReadyForUse;
-	        		//player_state_error = PlayerStatesError.Disconnected;
-	            	hideProgressView();
-	    			break;
-	                
-	            //case CONTENT_PROVIDER_ERROR_DISCONNECTED:
-	            case CP_STOPPED:
-	            case VDP_STOPPED:
-	            case VRP_STOPPED:
-	            case ADP_STOPPED:
-	            case ARP_STOPPED:
-	            	if (!isPlayerBusy())
-	            	{
-		        		//stopProgressTask();
-	            		//player_state = PlayerStates.Busy;
-	        			Log.e(TAG, "AUDIO_RENDERER_PROVIDER_STOPPED_THREAD Close.");
-	            		player.Close();
-	            	}
-	                break;
-	
-	            case PLP_EOS:
-	    			Log.e(TAG, "PLP_EOS: " + isFileUrl + ", " + player.getState());
-	            	if ((isFileUrl || isModeFile()) && !isPlayerBusy() && 
-	            							player_state_error != PlayerStatesError.Eos)
-	            	{
-	            		player_state_error = PlayerStatesError.Eos;
-	            		if (isStartedByIntent)
-	            		{
-	                       	player.Close();
-	            			onBackPressed();
-	            			return;
-	            		}
-	            		
-	            		if (!mPanelIsVisible)
-	            		{
-	            			if (SharedSettings.getInstance().AllowPlayStreamsSequentially)
-	            				playNextChannelOrBack();
-	            				//playNextChannelOrAgain();
-	            			else
-	            			{
-	            	           	player.Close();
-	            				onBackPressed();
-	            			}
-	            			
-	            			return;
-	            		}
-	            		
-	        			Log.e(TAG, "CONTENT_PROVIDER_ERROR_DISCONNECTED Close.");
-	            		player.Close();
-	            	}
-	                break;
-	                
-	            case CP_ERROR_DISCONNECTED:
-	            	if (!isPlayerBusy())
-	            	{
-	            		if (!isFileUrl) 
-	            		{
-	                		//player_state = PlayerStates.Busy;
-	            			Log.e(TAG, "CONTENT_PROVIDER_ERROR_DISCONNECTED Close.");
-	                		player.Close();
-	                		
-	            			playerConnect(m_cur_item);
-	        	    		Log.e(TAG, "Reconnecting: " + player.getConfig().getDataReceiveTimeout());
-	            		}
-	            	}
-	                break;
-	                
-	            default:
-	    	}
-    		
-	    	strText += " "+status;
-        }
-	};
-	
+    public int mOldMsg = 0;
+
    
-	@Override
-	public int OnReceiveData(ByteBuffer buffer, int size, long pts) 
-	{
-		//Log.i(TAG, "OnReceiveData size: " + size + ", pts: " + pts);
-		return 0;
-	}
-	
-	@Override
-	public int Status(int arg0) 
-	{
-		Log.i(TAG, "=Status arg="+arg0);
-		
-    	PlayerNotifyCodes status = PlayerNotifyCodes.forValue(arg0);
-    	if (handler == null || status == null)
-    		return 0;
-    	
-    	if (player != null)
-    		Log.i(TAG, "Current state:" + player.getState());
-    	
-	    switch (status) 
-	    {
-	    	// for synchronus process
-			//case PLAY_SUCCESSFUL:
-//	    	case VRP_NEED_SURFACE:
-//	    		synchronized (waitOnMe) 
-//	    		{
-//					Message msg = new Message();
-//					msg.obj = status;
-//					handler.sendMessage(msg);
-//	    		    try 
-//	    		    {
-//	    		        waitOnMe.wait();
-//	    		    }
-//	    		    catch (InterruptedException e) {}
-//	    		}			
-//				break;
-	            
-        	case CP_CONNECT_FAILED:
-            case PLP_BUILD_FAILED:
-            case PLP_PLAY_FAILED:
-            case PLP_ERROR:
-//            case CP_STOPPED:
-//            case VDP_STOPPED:
-//            case VRP_STOPPED:
-//            case ADP_STOPPED:
-//            case ARP_STOPPED:
-            case CP_ERROR_DISCONNECTED:
-            {
-        		player_state_error = PlayerStatesError.Disconnected;
-            	Message msg = new Message();
-	           	msg.obj = status;
-	           	msg.what = 1;
-	           	handler.removeMessages(mOldMsg);
-	           	mOldMsg = msg.what;
-	           	handler.sendMessage(msg);
-                break;
-            }
 
-            // for asynchronus process
-	        default:     
-	        {
-	        	Message msg = new Message();
-	           	msg.obj = status;
-	           	msg.what = 1;
-	           	handler.removeMessages(mOldMsg);
-	           	mOldMsg = msg.what;
-	           	handler.sendMessage(msg);
-	        }
-	    }
-
-		return 0;
-	}
 	
 	private void updatePlayerPanelControl(final boolean visible, final boolean locked) 
 	{
@@ -3005,7 +3646,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 	{
 		if (hider != null)
 			hider.lock(lock);
-		
+
 		if (lock)
 		{
 			
@@ -3033,7 +3674,7 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 	    	playerPanelControlTask.restartTimer();
 	}
 	
-	private void updatePlayerPanelControlButtons(final boolean lock, final boolean pause, int aspect_ratio_mode) 
+	public void updatePlayerPanelControlButtons(final boolean lock, final boolean pause, int aspect_ratio_mode)
 	{
 		if (player == null)
 			return;
@@ -3259,21 +3900,47 @@ public class MainActivity extends Activity implements MediaPlayerCallback, AddCh
 
 		
 
-	private void hideProgressView() 
+	public void hideProgressView(MediaPlayer currentPlayer)
 	{
+		if(screenMode!=ScreenMode.MultiView)
     	progress_bar.setVisibility(View.GONE);
-    	
-    	boolean isVisibleDisconnect = (!isModeFile() && (player_state_error == PlayerStatesError.Disconnected));
+		else if(fourCamerasGridVisible) {
+			if(currentPlayer==player1)
+			loaderIndicator1.setVisibility(View.GONE);
+			else if(currentPlayer==player2)
+				loaderIndicator2.setVisibility(View.GONE);
+			else if(currentPlayer==player3)
+			    loaderIndicator3.setVisibility(View.GONE);
+			else if(currentPlayer==player4)
+			    loaderIndicator4.setVisibility(View.GONE);
+
+		}
+
+    	boolean isVisibleDisconnect = (!isModeFile() && (currentPlayerCallBacks.player_state_error == PlayerCallBacks.PlayerStatesError.Disconnected));
    		picStatusDisconneted.setVisibility(isVisibleDisconnect ? View.VISIBLE : View.INVISIBLE);
-		Log.i(TAG, "=hideProgressView= " + player_state_error);
+		if(currentPlayerCallBacks!=null)
+		Log.i(TAG, "=hideProgressView= " + currentPlayerCallBacks.player_state_error);
 	}
 
-	private void showProgressView() 
+	public void showProgressView(MediaPlayer currentPlayer)
 	{
+		if(screenMode!=ScreenMode.MultiView)
     	progress_bar.setVisibility(View.VISIBLE);
+		else
+		{
+			    if(currentPlayer==player1)
+			 	loaderIndicator1.setVisibility(View.VISIBLE);
+			    else if(currentPlayer==player2)
+					loaderIndicator2.setVisibility(View.VISIBLE);
+			    else if(currentPlayer==player3)
+				    loaderIndicator3.setVisibility(View.VISIBLE);
+			    else if(currentPlayer==player4)
+				    loaderIndicator4.setVisibility(View.VISIBLE);
+
+		}
 		picStatusDisconneted.setVisibility(View.INVISIBLE);
 		invalidateOptionsMenu();
-		Log.i(TAG, "=showProgressView= " + player_state_error);
+		Log.i(TAG, "=showProgressView= " + currentPlayerCallBacks.player_state_error);
 	}
 	
 	private void hidePlayerView() 

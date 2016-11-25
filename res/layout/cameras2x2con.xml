@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/players2x2_container"
+
+    android:orientation="vertical"
+    android:visibility="gone"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/playerRow0"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal" >
+
+        <veg.mediaplayer.sdk.MediaPlayer
+            android:id="@+id/playerView1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+
+            >
+
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:id="@+id/loaderIndicator1"
+                style="?android:attr/progressBarStyleSmall"/>
+
+        </veg.mediaplayer.sdk.MediaPlayer>
+        <FrameLayout
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+
+            android:background="#006280"
+            android:id="@+id/verSeparator1"
+
+            ></FrameLayout>
+        <veg.mediaplayer.sdk.MediaPlayer
+            android:id="@+id/playerView2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            >
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:id="@+id/loaderIndicator2"
+                style="?android:attr/progressBarStyleSmall"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/offStatus2"
+
+                android:visibility="invisible"
+                android:background="#000000"
+                android:gravity="center"/>
+
+        </veg.mediaplayer.sdk.MediaPlayer>
+
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+
+        android:background="#006280"
+        android:id="@+id/horSeparator"
+        ></FrameLayout>
+    <LinearLayout
+        android:id="@+id/playerRow1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal" >
+
+        <veg.mediaplayer.sdk.MediaPlayer
+            android:id="@+id/playerView3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            >
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:id="@+id/loaderIndicator3"
+                style="?android:attr/progressBarStyleSmall"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/offStatus3"
+
+                android:visibility="invisible"
+                android:background="#000000"
+                android:gravity="center"
+                />
+        </veg.mediaplayer.sdk.MediaPlayer>
+        <FrameLayout
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+
+            android:background="#006280"
+            android:id="@+id/verSeparator2"
+            ></FrameLayout>
+        <veg.mediaplayer.sdk.MediaPlayer
+            android:id="@+id/playerView4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            >
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:id="@+id/loaderIndicator4"
+                style="?android:attr/progressBarStyleSmall"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/offStatus4"
+
+                android:visibility="invisible"
+                android:background="#000000"
+                android:gravity="center"/>
+        </veg.mediaplayer.sdk.MediaPlayer>
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

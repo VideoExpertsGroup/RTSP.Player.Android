@@ -29,5 +29,29 @@
         <item>Crop</item>
         <item>Real size</item>
         </string-array>
-    
+
+    <string-array name="prefs_int_list_aspectratiomode_values1">
+        <item>0</item>
+        <item>1</item>
+
+    </string-array>
+
+    <string-array name="prefs_int_list_aspectratiomode_entries1">
+        <item>Rreview</item>
+        <item>Multi channel view</item>
+    </string-array>
+
+    <string-array name="viewValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="viewEntries">
+        <item>Preview</item>
+        <item>One view</item>
+        <item>Multi view</item>
+
+
+    </string-array>
 </resources>

@@ -35,7 +35,14 @@
 		        android:title="Video output mode" 
 		     	android:summary=""
 		     	/>
-   		
+		<org.rtspplayer.sample.util.IntListPreference
+			android:key="view"
+			android:entries="@array/viewEntries"
+			android:entryValues="@array/viewValues"
+			android:defaultValue="2"
+			android:title="View"
+			android:summary=""
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory
    		android:title="Video decoding"

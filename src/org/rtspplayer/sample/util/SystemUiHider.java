@@ -19,7 +19,7 @@ public abstract class SystemUiHider
 
 	protected Activity mActivity;
 
-	protected View mAnchorView;
+	public View mAnchorView;
 
 	protected int mFlags;
 	protected boolean locked = false;

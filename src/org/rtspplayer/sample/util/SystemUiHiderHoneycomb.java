@@ -90,7 +90,7 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase
 			mHideFlags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 			mTestFlags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 		}
-
+         if(mAnchorView!=null)
 		mAnchorView.setSystemUiVisibility(mHideFlags);
 	}
 
@@ -199,7 +199,7 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase
 			mHideFlags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 			mTestFlags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 		}
-
+        if(mAnchorView!=null)
 		mAnchorView.setSystemUiVisibility(mShowFlags);
 	}
 
@@ -230,7 +230,7 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase
 //			mHideFlags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 //			mTestFlags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 		}
-
+         if(mAnchorView!=null)
 		mAnchorView.setSystemUiVisibility(mShowFlags);
 	}
 	
@@ -280,6 +280,7 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase
 			} 
 			else 
 			{
+				if(mAnchorView!=null)
 				mAnchorView.setSystemUiVisibility(mShowFlags);
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) 
 				{

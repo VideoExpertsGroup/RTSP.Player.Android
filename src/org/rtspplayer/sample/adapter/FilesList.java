@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.rtspplayer.sample.R;
+import org.rtspplayer.sample.activity.MainActivity;
 import org.rtspplayer.sample.adapter.CamerasList.ExtractLinkThumbs;
 import org.rtspplayer.sample.adapter.GridAdapter.GridAdapterCallback;
 import org.rtspplayer.sample.data.FileItem;
@@ -714,7 +715,14 @@ public class FilesList extends GridAdapter
 	@Override
 	public GridData getItem(long id) 
 	{
-    	for(GridData item : itemList)
+		ArrayList<GridData> searchableArr=null;
+
+		if(MainActivity.screenMode!= MainActivity.ScreenMode.MultiView)
+			searchableArr=itemList;
+		else
+			searchableArr=MainActivity._2x2camerasData;
+
+		for(GridData item : searchableArr)
     		if(item.id == id)
     			return item; 
 
