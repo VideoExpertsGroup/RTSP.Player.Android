@@ -2,7 +2,7 @@
 
 BY USING THE SDK, YOU AND THE COMPANY OR ENTITY THAT YOU REPRESENT ("YOU") ARE AGREEING TO BE BOUND BY AND ARE BECOMING A PARTY TO THIS MOBILE VIDEO PLAYBACK SDK LICENSE AGREEMENT ("AGREEMENT"). IF YOU DO NOT AGREE TO ALL OF THE TERMS OF THIS AGREEMENT, CLICK THE "CANCEL" BUTTON AND THE DOWNLOAD AND INSTALLATION PROCESS WILL NOT CONTINUE. IF THESE TERMS ARE CONSIDERED AN OFFER, ACCEPTANCE IS EXPRESSLY LIMITED TO THESE TERMS.
 
-1.	GRANT.Subject to Your compliance with all of the terms and conditions of this Agreement, EVE Group Pte. Ltd., ("Video Experts Group") hereby grants You a limited, personal, non-sublicensable, non-transferable, nonexclusive license to copy, install and use the SDK development kit that You are about to download along with any documentation that accompanies it (collectively, the "SDK") solely for the purpose of internally creating end user mobile (including tablet) applications ("Application(s)"). You may exercise the foregoing license only within and for the benefit of Your organization. You shall not distribute the SDK to any third party.
+1.	GRANT.Subject to Your compliance with all of the terms and conditions of this Agreement, VXG Inc., ("Video Experts Group") hereby grants You a limited, personal, non-sublicensable, non-transferable, nonexclusive license to copy, install and use the SDK development kit that You are about to download along with any documentation that accompanies it (collectively, the "SDK") solely for the purpose of internally creating end user mobile (including tablet) applications ("Application(s)"). You may exercise the foregoing license only within and for the benefit of Your organization. You shall not distribute the SDK to any third party.
 
 2.	EVALUATION VERSION AND FULL VERSION.You agree that the Evaluaton Version shall not be used in commercial products and shall be used for evaluation purposes only. The Evaluation version has limitations that can be removed by converting it into a Full version of the SDK. You will have to purchase Full Version to use the SDK in commecrial applications. The Full Version of the SDK is bound to an Application Name and is built for each application individually.
 
@@ -24,7 +24,6 @@ BY USING THE SDK, YOU AND THE COMPANY OR ENTITY THAT YOU REPRESENT ("YOU") ARE A
 
 11.	MISCELLANEOUS.You shall not assign or transfer any part of this Agreement to any third party. This Agreement represents the complete agreement concerning this license between the parties and supersedes all prior agreements and representations between them. If any provision of this Agreement is held to be unenforceable for any reason, such provision shall be reformed only to the extent necessary to make it enforceable. This Agreement shall be governed by and construed under California law. The prevailing party in any action or proceeding to enforce this Agreement will be entitled to costs and attorneys' fees.
 
-EVE GROUP PTE. LTD. (Video Experts Group)
-46 East Coast Road, #07-03
-Eastgate
-Singapore 428766
+VXG Inc.
+35 Lawrence Avenue W., 
+Toronto, Ontario, Canada, M5M 1A3
