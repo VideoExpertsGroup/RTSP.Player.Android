@@ -41,7 +41,7 @@ public class GridData
 		updating,
 		update
 	}
-	
+	public int checkBoxIndex=-1;
     public String name = "";
     public String url = "";
     public String user = "";
@@ -49,6 +49,7 @@ public class GridData
     public ContentType type = ContentType.Video;
     public long id;
     public int image;
+    public boolean chosen=false;
     public String image_file = "";
     public boolean isBack = false; //back directory ".."
     public boolean isDirectory = false;
@@ -134,6 +135,18 @@ public class GridData
         }
         
     	return false;
+    }
+
+
+    public boolean equals(Object obj){
+        if(obj!=null) {
+            GridData cam = (GridData) obj;
+                if(cam.name!=null)
+                return cam.name.equals(name);
+                else
+                    return false;
+        }
+        else return false;
     }
    
 }

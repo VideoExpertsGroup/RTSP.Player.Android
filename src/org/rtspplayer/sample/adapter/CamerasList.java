@@ -33,6 +33,7 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -160,19 +161,42 @@ public class CamerasList extends GridAdapter
 		synchronized (itemList) 
 		{
 		    Close();
-		    
+//		    ArrayList<GridData> cashedItems=new ArrayList<GridData>(itemList);
+			ArrayList<GridData> checkedItems=new ArrayList<GridData>();
+			String curItem=null;
+
+
+              for(int i=1;i<5;++i) {
+				  curItem = PreferenceManager.getDefaultSharedPreferences(mContext).getString("cam" +i, null);
+
+
+					  checkedItems.add(new GridData(curItem, null, null, null, 0, 0, null));
+			  }
+
+
+
+
 			itemList.clear();
+			checkedCams.clear();
 		    Cursor c = db.readChannelForPresentation(ITEM_TAG);
 		    while (c.moveToNext()) 
 		    {
-		    	itemList.add(new CameraItem(c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_NAME)),
-							                c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_URL)),
-							                c.getString(c.getColumnIndexOrThrow(ChannelListTable.USER)),
-							                c.getString(c.getColumnIndexOrThrow(ChannelListTable.PASSWORD)),
-							                c.getInt(c.getColumnIndexOrThrow(ChannelListTable._ID /*CHANNEL_ID*/)),
-							                c.getInt(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_IMAGE_URL)),
-							                c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_IMAGE_URL_STR))));
+				GridData cam=new CameraItem(c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_NAME)),
+						c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_URL)),
+						c.getString(c.getColumnIndexOrThrow(ChannelListTable.USER)),
+						c.getString(c.getColumnIndexOrThrow(ChannelListTable.PASSWORD)),
+						c.getInt(c.getColumnIndexOrThrow(ChannelListTable._ID /*CHANNEL_ID*/)),
+						c.getInt(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_IMAGE_URL)),
+						c.getString(c.getColumnIndexOrThrow(ChannelListTable.CHANNEL_IMAGE_URL_STR)));
+				if(checkedItems.contains(cam)) {
+					cam.chosen = true;
+					cam.checkBoxIndex=1+checkedItems.indexOf(cam);
+					setSlotBusy(cam.checkBoxIndex);
+					checkedCams.add(cam);
+				}
+		    	itemList.add(cam);
 		    }
+
 		}
 		
 	    notifyDataSetChanged();

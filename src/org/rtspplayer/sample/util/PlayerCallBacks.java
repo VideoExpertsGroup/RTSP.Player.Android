@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.rtspplayer.sample.activity.MainActivity;
 
@@ -33,6 +34,11 @@ public class PlayerCallBacks implements MediaPlayer.MediaPlayerCallback {
 
             switch (status)
             {
+                case PLP_TRIAL_VERSION:
+                    Toast.makeText(act.getApplicationContext(), "Demo Version!",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+
                 case CP_CONNECT_STARTING:
                     //player_state = PlayerStates.Busy;
                     player_state_error = PlayerStatesError.None;
@@ -159,6 +165,7 @@ public class PlayerCallBacks implements MediaPlayer.MediaPlayerCallback {
 
                             act.playerConnect(act.m_cur_item);
                             Log.e(TAG, "Reconnecting: " + player.getConfig().getDataReceiveTimeout());
+
                         }
                     }
                     break;

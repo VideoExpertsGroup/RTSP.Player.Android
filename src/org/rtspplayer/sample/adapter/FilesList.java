@@ -263,6 +263,7 @@ public class FilesList extends GridAdapter
     public void update_dir(File dir)
     {
 		Log.v(TAG, "=update_dir: " + mDir);
+		checkedCams.clear();
     	if(dir != null)
     		mDir = dir;
     	
@@ -273,7 +274,7 @@ public class FilesList extends GridAdapter
 		
 		if(mDir == null)
 			return;
-
+        ArrayList<GridData> cashedFiles=new ArrayList<GridData>(itemList);
 		itemList.clear();
 		
 		if(mThreadThumbs == null)
@@ -354,6 +355,8 @@ public class FilesList extends GridAdapter
 			gd.url = f.getAbsolutePath();
 
 			Log.v(TAG, " isdir=" + gd.isDirectory + " url=" + gd.url + "name=" + sfile);
+//			if(cashedFiles.contains(gd))
+//				gd.chosen=cashedFiles.get(cashedFiles.indexOf(gd)).chosen;
 			itemList.add(gd);
 		}
 		Collections.sort(itemList, new GridData.GridDataComparator());
@@ -377,6 +380,7 @@ public class FilesList extends GridAdapter
 						continue;
 					
 					FileItem gd = new FileItem(si.getDisplayName(), sfile, "", "", 0, 0, "");
+
 					if(f.isDirectory())
 					{
 						gd.isDirectory = true;
@@ -388,6 +392,8 @@ public class FilesList extends GridAdapter
 					gd.url = f.getAbsolutePath();
 
 					Log.v(TAG, " isdir=" + gd.isDirectory + " url=" + gd.url + "name=" + sfile);
+//					if(cashedFiles.contains(gd))
+//						gd.chosen=cashedFiles.get(cashedFiles.indexOf(gd)).chosen;
 					itemList.add(gd);
 				}
 			}

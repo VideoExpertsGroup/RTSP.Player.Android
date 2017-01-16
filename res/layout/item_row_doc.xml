@@ -10,7 +10,11 @@
     	android:layout_height="match_parent"
     	android:orientation="horizontal" 
     	>
- 	    
+		<CheckBox
+			android:id="@+id/checkBox"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"/>
         <ImageView
         	android:id="@+id/document_item"
         	android:layout_width="96dp"
