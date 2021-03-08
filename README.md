@@ -2,7 +2,7 @@
   
   THIS PLAYER IS BASED ON A TRIAL VERSION OF VXG PLAYER SDK FOR ANDROID. PLAYBACK IS LIMITED TO 2 MINUTES.
 
-  READ MORE ABOUT VXG PLAYER SDK HERE: https://www.videoexpertsgroup.com/mobile/
+Learn more about <a href="www.videoexpertsgroup.com">VXG RTSP Android SDK</a>
   
   RTSP Player is a very simple IP camera viewer.
   Fast application to playback network stream from IP cameras, video servers and surveillance systems. 
@@ -18,6 +18,8 @@
 *  Replay for live HLS stream
 *  Hardware decoder using hardware acceleration with processor optimization – high speed rendering for modern platform
 *  Multi-core decoding provides the dual-core device’s performance 
+
+Learn more about <a href="www.videoexpertsgroup.com">Cloud Video Surveillance</a>
 
 
 <img src="http://www.videoexpertsgroup.com/git/sample1.png" alt="RTSP player sample1" width="500">
